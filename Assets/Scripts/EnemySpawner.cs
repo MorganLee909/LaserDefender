@@ -3,37 +3,25 @@ using System.Collections;
 
 public class EnemySpawner : MonoBehaviour {
 	public GameObject enemyPrefab;
-	public float width = 10f;
-	public float height = 5f;
-	public float speed = 1;
-	public float spawnDelay = 0.5f;
-	
-	private bool movingRight = true;
+	public float speed;
+	public float spawnDelay;
+
+    private float width;
+    private float height;
+    private bool movingRight;
 	private float xMax;
 	private float xMin;
 
-	void Start () {	
+	void Start () {
+        movingRight = true;
+        width = 10f;
+        height = 5f;
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
 		Vector3 cameraLeft = Camera.main.ViewportToWorldPoint(new Vector3(0,1, distanceToCamera));
 		Vector3 cameraRight = Camera.main.ViewportToWorldPoint(new Vector3(1,0, distanceToCamera));
 		xMax = cameraRight.x;
 		xMin = cameraLeft.x;
 		SpawnUntilFull();
-	}
-	
-	void SpawnUntilFull(){
-		Transform freePosition = NextFreePosition();
-		if(freePosition){
-			GameObject enemy = Instantiate(enemyPrefab, freePosition.position, Quaternion.identity) as GameObject;
-			enemy.transform.parent = freePosition;
-		}
-		if(NextFreePosition()){
-			Invoke("SpawnUntilFull", spawnDelay);
-		}
-	}
-	
-	public void OnDrawGizmos() {
-		Gizmos.DrawWireCube (transform.position, new Vector3(width, height));
 	}
 	
 	void Update() {
@@ -53,8 +41,34 @@ public class EnemySpawner : MonoBehaviour {
 			SpawnUntilFull();
 		}		
 	}
-	
-	Transform NextFreePosition(){
+
+    /// <summary>
+    /// Creates new enemies after all are killed
+    /// </summary>
+	void SpawnUntilFull() {
+        Transform freePosition = NextFreePosition();
+        if (freePosition) {
+            GameObject enemy = Instantiate(enemyPrefab, freePosition.position, Quaternion.identity) as GameObject;
+            enemy.transform.parent = freePosition;
+        }
+        if (NextFreePosition()) {
+            Invoke("SpawnUntilFull", spawnDelay);
+        }
+    }
+
+    /// <summary>
+    /// Creates a wire cube gizmo for the enemies
+    /// </summary>
+    private void OnDrawGizmos() {
+        Gizmos.DrawWireCube(transform.position, new Vector3(width, height));
+    }
+
+    /// <summary>
+    /// Finds a free position in the gizmo based on whether
+    /// it has any children
+    /// </summary>
+    /// <returns></returns>
+    private Transform NextFreePosition(){
 		foreach(Transform childPositionGameObject in transform){
 			if(childPositionGameObject.childCount == 0f){
 				return childPositionGameObject;
@@ -63,7 +77,12 @@ public class EnemySpawner : MonoBehaviour {
 		return null;
 	}
 	
-	bool AllDead(){
+    /// <summary>
+    /// Checks to see whether all of the enemies are currently
+    /// dead or not
+    /// </summary>
+    /// <returns></returns>
+	private bool AllDead(){
 		foreach(Transform childPositionGameObject in transform){
 			if(childPositionGameObject.childCount > 0f){
 				return false;

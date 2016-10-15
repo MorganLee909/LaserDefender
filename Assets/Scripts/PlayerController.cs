@@ -2,23 +2,23 @@
 using System.Collections;
 
 public class PlayerController : MonoBehaviour {
-	public float speed = 10f;
-	public float padding = 0.5f;
 	public GameObject projectile;
-	public static float laserSpeed = 10f;
-	public float fireRate = 0.2f;
-	
-	private float health = 500f;
-	
-	float xMin;
-	float xMax;
+    public float health;
+
+    private float fireRate;
+    private float speed;
+	private float xMin, xMax;
+    private float damage;
 	
 	void Start() {
+        fireRate = 0.2f;
+        speed = 10f;
 		float distance = transform.position.z - Camera.main.transform.position.z;
 		Vector3 leftLimit = Camera.main.ViewportToWorldPoint(new Vector3(0,0,distance));
 		Vector3 rightLimit = Camera.main.ViewportToWorldPoint(new Vector3(1,0,distance));
-		xMin = leftLimit.x + padding;
-		xMax = rightLimit.x - padding;
+		xMin = leftLimit.x + 0.5f;  //adds padding
+		xMax = rightLimit.x - 0.5f;  //adds padding
+        damage = 125f;
 	}
 
 	void Update() {
@@ -39,12 +39,19 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 	
+    /// <summary>
+    /// Fires a laser and gives it motion
+    /// </summary>
 	void Fire() {
 		Vector3 laserPosition = transform.position + new Vector3(0f, .75f, 0f);
 		GameObject playerLaser = Instantiate(projectile,laserPosition, Quaternion.identity) as GameObject;
-		playerLaser.GetComponent<Rigidbody2D>().velocity = new Vector3(0f, laserSpeed);
 	}
 	
+    /// <summary>
+    /// When hit by an enemy laser, deals damage and calls Die()
+    /// if health is below 0.
+    /// </summary>
+    /// <param name="collider"></param>
 	void OnTriggerEnter2D(Collider2D collider){
 		float enemyDamage = 75f;
 		health -= enemyDamage;
@@ -53,8 +60,15 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 	
+    /// <summary>
+    /// Goes to end screen when player is killed
+    /// </summary>
 	void Die() {
 		LevelManager man = GameObject.Find ("LevelManager").GetComponent<LevelManager>();
 		man.LoadLevel("Lose");
 	}
+
+    public float getDamage() {
+        return damage;
+    }
 }

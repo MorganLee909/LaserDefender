@@ -2,11 +2,10 @@
 using System.Collections;
 
 public class MusicPlayer : MonoBehaviour {
-	static MusicPlayer instance = null;
-	
 	public AudioClip startClip, gameClip, endClip;
-	
-	private AudioSource music;
+
+    private static MusicPlayer instance = null;
+    private AudioSource music;
 	
 	void Start () {
 		if(instance != null && instance != this) {
@@ -22,7 +21,11 @@ public class MusicPlayer : MonoBehaviour {
 		ScoreKeeper.Reset ();
 	}
 	
-	void OnLevelWasLoaded(int level) {
+    /// <summary>
+    /// Plays music based on the level that was loaded
+    /// </summary>
+    /// <param name="level"></param>
+	private void OnLevelWasLoaded(int level) {
 		Debug.Log("Musicplayer: loaded level " + level);
 		music.Stop ();
 		if (level == 0) {
